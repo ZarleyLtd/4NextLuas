@@ -1,0 +1,7 @@
+# Runtime dependencies for the Lambda skill handler (kept minimal for cold-start size).
+# boto3 is provided by the Lambda runtime and is intentionally not pinned here.
+ask-sdk-core>=1.19,<2
+gtfs-realtime-bindings>=1.0,<4
+protobuf>=4.21,<8
+requests>=2.31,<3
+tzdata>=2024.1          # zoneinfo data for Europe/Dublin (Windows and Lambda lack a system tz database)

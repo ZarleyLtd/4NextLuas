@@ -1,0 +1,33 @@
+# Secrets and local config
+.env
+*.pem
+
+# Background material from the old project (contains a hardcoded API key and 50 MB zip)
+backgroundInfo/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Build / deploy artefacts
+build/
+dist/
+.aws-sam/
+*.zip
+!skill-package/**/*.zip
+
+# Local data caches
+.cache/
+gtfs_data/
+*.duckdb
+*.pkl
+
+# OS / editor
+desktop.ini
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,835 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "four next luas",
+      "intents": [
+        {
+          "name": "NextTramIntent",
+          "slots": [
+            {
+              "name": "station",
+              "type": "LUAS_STATION"
+            },
+            {
+              "name": "direction",
+              "type": "LUAS_DIRECTION"
+            }
+          ],
+          "samples": [
+            "from {station}",
+            "from {station} {direction}",
+            "from {station} towards {direction}",
+            "{direction} from {station}",
+            "trams from {station}",
+            "trams from {station} {direction}",
+            "the next tram from {station}",
+            "the next tram from {station} {direction}",
+            "when is the next tram from {station}",
+            "what's the next tram from {station}",
+            "next tram from {station}",
+            "from {station} northbound",
+            "from {station} southbound",
+            "from {station} eastbound",
+            "from {station} westbound",
+            "from {station} towards the city",
+            "next tram",
+            "next trams",
+            "the next tram",
+            "for the next tram",
+            "for the next trams",
+            "when is the next tram",
+            "when is my next tram",
+            "what's the next tram",
+            "what time is the next tram",
+            "from my favourite stop",
+            "from my stop",
+            "for my stop",
+            "trams from my favourite stop",
+            "the next tram from my favourite stop"
+          ]
+        },
+        {
+          "name": "SetFavouriteStopIntent",
+          "slots": [
+            {
+              "name": "station",
+              "type": "LUAS_STATION"
+            },
+            {
+              "name": "direction",
+              "type": "LUAS_DIRECTION"
+            }
+          ],
+          "samples": [
+            "to set my favourite stop to {station}",
+            "set my favourite stop to {station}",
+            "set my favourite stop to {station} {direction}",
+            "set favourite stop {station}",
+            "set my favourite stop",
+            "to set my favourite stop",
+            "change my favourite stop to {station}",
+            "to change my favourite stop to {station}",
+            "make {station} my favourite stop",
+            "make {station} {direction} my favourite",
+            "remember {station}",
+            "to remember {station} {direction}",
+            "save {station}",
+            "to save {station} as my favourite",
+            "my stop is {station}",
+            "my stop is {station} {direction}",
+            "to set my favorite stop to {station}",
+            "set my favorite stop to {station}"
+          ]
+        },
+        {
+          "name": "GetFavouriteStopIntent",
+          "slots": [],
+          "samples": [
+            "for my favourite stop",
+            "what is my favourite stop",
+            "what's my favourite stop",
+            "which stop is my favourite",
+            "to remind me of my favourite stop",
+            "what stop is saved",
+            "for my favorite stop",
+            "what is my favorite stop"
+          ]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        }
+      ],
+      "types": [
+        {
+          "name": "LUAS_STATION",
+          "values": [
+            {
+              "name": {
+                "value": "Abbey Street",
+                "synonyms": [
+                  "Abbey St.",
+                  "abbey",
+                  "abbey st"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Balally",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Ballyogan Wood",
+                "synonyms": [
+                  "Ballyogan",
+                  "ballyogan"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Beechwood",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Belgard",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Blackhorse",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Bluebell",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Brides Glen",
+                "synonyms": [
+                  "bridesglen",
+                  "bride s glen"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Broadstone DIT",
+                "synonyms": [
+                  "Broadstone"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Broombridge",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Busaras",
+                "synonyms": [
+                  "Busáras",
+                  "bus aras"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Cabra",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Carrickmines",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Central Park",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Charlemont",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Cheeverstown",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Cherrywood",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Citywest Campus",
+                "synonyms": [
+                  "Citywest",
+                  "citywest"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Connolly",
+                "synonyms": [
+                  "connolly station"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Cookstown",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Cowper",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Dawson",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Dominick",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Drimnagh",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Dundrum",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Fatima",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Fettercairn",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Fortunestown",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Four Courts",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "George's Dock",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Glencairn",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Goldenbridge",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Grangegorman",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Harcourt",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Heuston",
+                "synonyms": [
+                  "heuston station"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "James's",
+                "synonyms": [
+                  "james",
+                  "jamess",
+                  "st jamess",
+                  "james s"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Jervis",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Kilmacud",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Kingswood",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Kylemore",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Laughanstown",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Leopardstown Valley",
+                "synonyms": [
+                  "Leopardstown",
+                  "leopardstown"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Marlborough",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Mayor Square",
+                "synonyms": [
+                  "mayors square",
+                  "nci"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Milltown",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Museum",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "O'Connell GPO",
+                "synonyms": [
+                  "O'Connell - GPO",
+                  "the gpo",
+                  "oconnell street",
+                  "o connell street",
+                  "o connell",
+                  "oconnell"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "O'Connell Upper",
+                "synonyms": [
+                  "O'Connell Upr."
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Parnell",
+                "synonyms": [
+                  "parnell square"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Phibsborough",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Ranelagh",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Red Cow",
+                "synonyms": [
+                  "the red cow"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Rialto",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Saggart",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Sandyford",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Smithfield",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Spencer Dock",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "St Stephen's Green",
+                "synonyms": [
+                  "St. Stephen's Green",
+                  "stephens green",
+                  "stephen s green",
+                  "st stephens green",
+                  "the green"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Stillorgan",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Suir Road",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Tallaght",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Tallaght Hospital",
+                "synonyms": [
+                  "Hospital",
+                  "hospital",
+                  "the hospital"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "The Gallops",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "The Point",
+                "synonyms": [
+                  "point village",
+                  "three arena",
+                  "3arena"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Trinity",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Westmoreland",
+                "synonyms": []
+              }
+            },
+            {
+              "name": {
+                "value": "Windy Arbour",
+                "synonyms": []
+              }
+            }
+          ]
+        },
+        {
+          "name": "LUAS_DIRECTION",
+          "values": [
+            {
+              "name": {
+                "value": "northbound",
+                "synonyms": [
+                  "north",
+                  "north bound"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "southbound",
+                "synonyms": [
+                  "south",
+                  "south bound"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "eastbound",
+                "synonyms": [
+                  "east",
+                  "east bound"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "westbound",
+                "synonyms": [
+                  "west",
+                  "west bound"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "the city",
+                "synonyms": [
+                  "city",
+                  "city centre",
+                  "city center",
+                  "into town",
+                  "town",
+                  "towards the city"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Broombridge",
+                "synonyms": [
+                  "towards Broombridge",
+                  "toward Broombridge"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Brides Glen",
+                "synonyms": [
+                  "towards Brides Glen",
+                  "toward Brides Glen"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Tallaght",
+                "synonyms": [
+                  "towards Tallaght",
+                  "toward Tallaght"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Saggart",
+                "synonyms": [
+                  "towards Saggart",
+                  "toward Saggart"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Connolly",
+                "synonyms": [
+                  "towards Connolly",
+                  "toward Connolly"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "The Point",
+                "synonyms": [
+                  "towards The Point",
+                  "toward The Point"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Parnell",
+                "synonyms": [
+                  "towards Parnell",
+                  "toward Parnell"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Sandyford",
+                "synonyms": [
+                  "towards Sandyford",
+                  "toward Sandyford"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Heuston",
+                "synonyms": [
+                  "towards Heuston",
+                  "toward Heuston"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Red Cow",
+                "synonyms": [
+                  "towards Red Cow",
+                  "toward Red Cow"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Belgard",
+                "synonyms": [
+                  "towards Belgard",
+                  "toward Belgard"
+                ]
+              }
+            },
+            {
+              "name": {
+                "value": "Kingswood",
+                "synonyms": [
+                  "towards Kingswood",
+                  "toward Kingswood"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "NextTramIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "station",
+              "type": "LUAS_STATION",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.station"
+              }
+            },
+            {
+              "name": "direction",
+              "type": "LUAS_DIRECTION",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.direction"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SetFavouriteStopIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "station",
+              "type": "LUAS_STATION",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.station"
+              }
+            },
+            {
+              "name": "direction",
+              "type": "LUAS_DIRECTION",
+              "confirmationRequired": false,
+              "elicitationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.direction"
+              }
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "SKILL_RESPONSE"
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.station",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Which Luas stop?"
+          },
+          {
+            "type": "PlainText",
+            "value": "What's the name of the stop?"
+          }
+        ]
+      },
+      {
+        "id": "Elicit.Slot.direction",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Which direction?"
+          },
+          {
+            "type": "PlainText",
+            "value": "Northbound, southbound, towards the city, or towards a terminus?"
+          }
+        ]
+      }
+    ]
+  }
+}

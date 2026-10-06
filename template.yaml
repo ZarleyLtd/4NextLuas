@@ -1,0 +1,184 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  4NextLuas Alexa skill backend. Always-free-tier only: one provisioned DynamoDB table,
+  one Lambda, CloudWatch Logs with short retention, an IAM user for the GitHub Actions
+  ingest job, and a $1 budget alarm. The Lambda code is uploaded separately by
+  tools/deploy.py (direct zip upload, no S3 bucket). The NTA API key lives in an SSM
+  SecureString created by the same script (CloudFormation cannot create SecureStrings).
+
+Parameters:
+  SkillId:
+    Type: String
+    Description: Alexa skill ID (amzn1.ask.skill....) allowed to invoke the function.
+    AllowedPattern: "^amzn1\\.ask\\.skill\\.[0-9a-f-]+$"
+  SecondSkillId:
+    Type: String
+    Default: ""
+    Description: Optional second skill ID (e.g. a development copy of the skill) also allowed to invoke the function.
+    AllowedPattern: "^(amzn1\\.ask\\.skill\\.[0-9a-f-]+)?$"
+  AlertEmail:
+    Type: String
+    Description: Email for the $1/month budget alert.
+  TableName:
+    Type: String
+    Default: FourNextLuas
+  FunctionName:
+    Type: String
+    Default: FourNextLuas-Skill
+  NtaKeyParameterName:
+    Type: String
+    Default: /4nextluas/nta_api_key
+  ReservedConcurrency:
+    Type: String
+    Default: "1"
+    Description: Reserved concurrency for the skill Lambda ("none" to leave unreserved; needed on accounts with a low concurrency quota).
+
+Conditions:
+  UseReservedConcurrency: !Not [!Equals [!Ref ReservedConcurrency, "none"]]
+  HasSecondSkill: !Not [!Equals [!Ref SecondSkillId, ""]]
+
+Resources:
+  Table:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 25
+        WriteCapacityUnits: 25
+      TableClass: STANDARD
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: false
+
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${FunctionName}
+      RetentionInDays: 14
+
+  SkillRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${FunctionName}-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: skill
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !GetAtt LogGroup.Arn
+              - Effect: Allow
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                Resource: !GetAtt Table.Arn
+              - Effect: Allow
+                Action: ssm:GetParameter
+                Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${NtaKeyParameterName}
+              - Effect: Allow
+                Action: kms:Decrypt
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    kms:ViaService: !Sub ssm.${AWS::Region}.amazonaws.com
+
+  SkillFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: LogGroup
+    Properties:
+      FunctionName: !Ref FunctionName
+      Description: 4NextLuas Alexa skill handler (code deployed by tools/deploy.py)
+      Runtime: python3.13
+      Architectures: [x86_64]
+      Handler: src.skill.app.handler
+      Role: !GetAtt SkillRole.Arn
+      MemorySize: 512
+      Timeout: 10
+      ReservedConcurrentExecutions: !If [UseReservedConcurrency, !Ref ReservedConcurrency, !Ref "AWS::NoValue"]
+      Environment:
+        Variables:
+          FOURNEXTLUAS_TABLE: !Ref TableName
+          NTA_API_KEY_PARAM: !Ref NtaKeyParameterName
+          ALEXA_SKILL_ID: !If [HasSecondSkill, !Sub "${SkillId},${SecondSkillId}", !Ref SkillId]
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return {"version": "1.0", "response": {"outputSpeech": {"type": "PlainText",
+                      "text": "The skill code has not been deployed yet."}, "shouldEndSession": True}}
+
+  AlexaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref SkillFunction
+      Action: lambda:InvokeFunction
+      Principal: alexa-appkit.amazon.com
+      EventSourceToken: !Ref SkillId
+
+  SecondAlexaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Condition: HasSecondSkill
+    Properties:
+      FunctionName: !Ref SkillFunction
+      Action: lambda:InvokeFunction
+      Principal: alexa-appkit.amazon.com
+      EventSourceToken: !Ref SecondSkillId
+
+  IngestUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Sub ${TableName}-ingest
+      Policies:
+        - PolicyName: ingest
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:DeleteItem, dynamodb:BatchWriteItem]
+                Resource: !GetAtt Table.Arn
+
+  Budget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: 4NextLuas-free-tier-guard
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit: { Amount: 1, Unit: USD }
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 50
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - { SubscriptionType: EMAIL, Address: !Ref AlertEmail }
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - { SubscriptionType: EMAIL, Address: !Ref AlertEmail }
+
+Outputs:
+  FunctionArn:
+    Description: Paste this as the skill's Default Region endpoint in the Alexa developer console.
+    Value: !GetAtt SkillFunction.Arn
+  TableName:
+    Value: !Ref Table
+  IngestUserName:
+    Description: Create an access key for this user and store it in the GitHub repo secrets.
+    Value: !Ref IngestUser
