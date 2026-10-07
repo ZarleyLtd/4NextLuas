@@ -322,6 +322,7 @@ def parse_direction(text: str | None) -> str | None:
     if not raw or raw == "?":
         return None
     key = normalize_name(_TOWARDS_PREFIX.sub("", raw))
+    key = re.sub(r"\b(north|south|east|west)\s+bound\b", r"\1bound", key)
     if not key:
         return None
     if key in CARDINALS:
@@ -329,6 +330,50 @@ def parse_direction(text: str | None) -> str | None:
     if key in {normalize_name(p) for p in CITY_PHRASES} or key in CITY_PHRASES:
         return "city"
     return key
+
+
+# Trailing direction Alexa often glues onto the station slot ("Dundrum southbound").
+_DIRECTION_TAIL = re.compile(
+    r"[\s,]+("
+    r"(?:going|heading)\s+(?:north|south|east|west)(?:\s*bound)?"
+    r"|north\s*bound|south\s*bound|east\s*bound|west\s*bound"
+    r"|north|south|east|west"
+    r"|(?:towards?|into)\s+the\s+city(?:\s+centre|\s+center)?"
+    r"|(?:towards?|into)\s+town"
+    r"|the\s+city(?:\s+centre|\s+center)?"
+    r"|(?:towards?|toward|to)\s+.+"
+    r")\s*$",
+    re.I,
+)
+
+
+def peel_direction_suffix(text: str) -> tuple[str, str | None]:
+    """Split a trailing direction phrase off a station utterance, if present."""
+    raw = (text or "").strip()
+    if not raw:
+        return raw, None
+    m = _DIRECTION_TAIL.search(raw)
+    if not m:
+        return raw, None
+    head = raw[:m.start()].strip(" ,")
+    suffix = m.group(1).strip()
+    if not head or not parse_direction(suffix):
+        return raw, None
+    return head, suffix
+
+
+def split_station_and_direction(
+    station_text: str | None, direction_text: str | None,
+) -> tuple[str | None, str | None]:
+    """Return (station name, parsed direction), recovering a direction glued to the station."""
+    raw_station = (station_text or "").strip() or None
+    explicit = parse_direction(direction_text)
+    if not raw_station:
+        return None, explicit
+    head, suffix = peel_direction_suffix(raw_station)
+    peeled = parse_direction(suffix) if suffix else None
+    station = head if (peeled and head) else raw_station
+    return station, explicit or peeled
 
 
 def _headsign_key(name: str) -> str:
@@ -401,16 +446,27 @@ def alexa_station_values(stations: list[Station]) -> list[dict]:
 
 def alexa_direction_values() -> list[dict]:
     values = [
-        {"name": {"value": "northbound", "synonyms": ["north", "north bound"]}},
-        {"name": {"value": "southbound", "synonyms": ["south", "south bound"]}},
-        {"name": {"value": "eastbound", "synonyms": ["east", "east bound"]}},
-        {"name": {"value": "westbound", "synonyms": ["west", "west bound"]}},
+        {"name": {"value": "northbound", "synonyms": [
+            "north", "north bound", "going north", "heading north", "going northbound",
+        ]}},
+        {"name": {"value": "southbound", "synonyms": [
+            "south", "south bound", "going south", "heading south", "going southbound",
+        ]}},
+        {"name": {"value": "eastbound", "synonyms": [
+            "east", "east bound", "going east", "heading east", "going eastbound",
+        ]}},
+        {"name": {"value": "westbound", "synonyms": [
+            "west", "west bound", "going west", "heading west", "going westbound",
+        ]}},
         {"name": {"value": "the city", "synonyms": [
-            "city", "city centre", "city center", "into town", "town", "towards the city",
+            "city", "city centre", "city center", "into town", "town",
+            "towards the city", "toward the city", "to the city",
         ]}},
     ]
     for term in ("Broombridge", "Brides Glen", "Tallaght", "Saggart", "Connolly",
                  "The Point", "Parnell", "Sandyford", "Heuston", "Red Cow", "Belgard",
                  "Kingswood"):
-        values.append({"name": {"value": term, "synonyms": [f"towards {term}", f"toward {term}"]}})
+        values.append({"name": {"value": term, "synonyms": [
+            f"towards {term}", f"toward {term}", f"to {term}",
+        ]}})
     return values

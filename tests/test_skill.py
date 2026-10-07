@@ -73,22 +73,28 @@ def wired(monkeypatch):
     return store
 
 
-def envelope(request: dict) -> dict:
+def envelope(request: dict, session_attrs=None, new=True) -> dict:
+    session = {
+        "new": new, "sessionId": "s1",
+        "application": {"applicationId": "amzn1.ask.skill.test"},
+        "user": {"userId": USER},
+    }
+    if session_attrs:
+        session["attributes"] = session_attrs
     return {
         "version": "1.0",
-        "session": {"new": True, "sessionId": "s1", "application": {"applicationId": "amzn1.ask.skill.test"},
-                    "user": {"userId": USER}},
+        "session": session,
         "context": {"System": {"application": {"applicationId": "amzn1.ask.skill.test"}, "user": {"userId": USER},
                                "device": {"deviceId": "d1", "supportedInterfaces": {}}}},
         "request": {"requestId": "r1", "timestamp": "2026-10-06T19:06:00Z", "locale": "en-GB", **request},
     }
 
 
-def intent(name, **slots):
+def intent(name, *, session_attrs=None, new=True, **slots):
     return envelope({"type": "IntentRequest", "intent": {
         "name": name, "confirmationStatus": "NONE",
         "slots": {k: {"name": k, "value": v, "confirmationStatus": "NONE"} for k, v in slots.items()},
-    }})
+    }}, session_attrs=session_attrs, new=new)
 
 
 def speech(resp: dict) -> str:
@@ -98,9 +104,62 @@ def speech(resp: dict) -> str:
 def test_next_tram_with_station_and_direction():
     resp = app.handler(intent("NextTramIntent", station="Dundrum", direction="northbound"), None)
     text = speech(resp)
-    assert "At Dundrum, northbound towards Broombridge:" in text
-    assert "Green Line" in text
+    assert "At Dundrum:" in text
+    assert "to Broombridge" in text
+    assert "Green Line" not in text
     assert resp["response"]["shouldEndSession"] is True
+
+
+def test_next_tram_southbound():
+    resp = app.handler(intent("NextTramIntent", station="Dundrum", direction="southbound"), None)
+    text = speech(resp)
+    assert "At Dundrum:" in text
+    assert "to Brides Glen" in text
+    assert resp["response"]["shouldEndSession"] is True
+
+
+def test_next_tram_to_brides_glen():
+    resp = app.handler(intent("NextTramIntent", station="Dundrum", direction="to Brides Glen"), None)
+    text = speech(resp)
+    assert "to Brides Glen" in text
+    assert resp["response"]["shouldEndSession"] is True
+
+
+def test_next_tram_going_south():
+    resp = app.handler(intent("NextTramIntent", station="Dundrum", direction="going south"), None)
+    text = speech(resp)
+    assert "to Brides Glen" in text
+    assert resp["response"]["shouldEndSession"] is True
+
+
+def test_next_tram_going_north_glued():
+    resp = app.handler(intent("NextTramIntent", station="Dundrum going north"), None)
+    text = speech(resp)
+    assert "to Broombridge" in text
+    assert resp["response"]["shouldEndSession"] is True
+
+
+def test_next_tram_direction_glued_to_station_slot():
+    resp = app.handler(intent("NextTramIntent", station="Dundrum southbound"), None)
+    text = speech(resp)
+    assert "to Brides Glen" in text
+    assert "Which direction" not in text
+    assert resp["response"]["shouldEndSession"] is True
+
+
+def test_slot_value_reads_slot_value_payload():
+    event = envelope({"type": "IntentRequest", "intent": {
+        "name": "NextTramIntent", "confirmationStatus": "NONE",
+        "slots": {
+            "station": {
+                "name": "station", "confirmationStatus": "NONE",
+                "slotValue": {"type": "Simple", "value": "Dundrum southbound"},
+            },
+            "direction": {"name": "direction", "confirmationStatus": "NONE"},
+        },
+    }})
+    resp = app.handler(event, None)
+    assert "to Brides Glen" in speech(resp)
 
 
 def test_unknown_station():
@@ -124,13 +183,71 @@ def test_bad_cardinal_elicits():
 
 def test_towards_the_city():
     resp = app.handler(intent("NextTramIntent", station="Dundrum", direction="the city"), None)
-    assert "northbound towards Broombridge" in speech(resp)
+    text = speech(resp)
+    assert "to Broombridge" in text
+    assert "Brides Glen" not in text
+
+
+def test_query_intent_parses_station_and_direction():
+    resp = app.handler(intent("NextTramQueryIntent", query="Dundrum southbound"), None)
+    text = speech(resp)
+    assert "to Brides Glen" in text
+    assert resp["response"]["shouldEndSession"] is True
 
 
 def test_next_tram_without_favourite_elicits_station():
     resp = app.handler(intent("NextTramIntent"), None)
     assert resp["response"]["shouldEndSession"] is False
-    assert "haven't set a favourite stop" in speech(resp)
+    assert "didn't catch which stop" in speech(resp)
+
+
+def test_set_favourite_without_stop_keeps_session_open():
+    resp = app.handler(intent("SetFavouriteStopIntent"), None)
+    assert "Which stop should I save" in speech(resp)
+    assert resp["response"]["shouldEndSession"] is False
+    directives = resp["response"].get("directives") or []
+    assert not any("ElicitSlot" in str(d.get("type", d)) for d in directives)
+    assert (resp.get("sessionAttributes") or {}).get("pending_action") == "set_favourite"
+
+
+def test_set_favourite_follow_up_glued_direction(wired):
+    first = app.handler(intent("SetFavouriteStopIntent"), None)
+    attrs = first.get("sessionAttributes") or {}
+    resp = app.handler(
+        intent("NextTramIntent", station="Dundrum southbound", session_attrs=attrs, new=False),
+        None,
+    )
+    assert "Your favourite stop is now Dundrum, southbound" in speech(resp)
+    assert wired.favourites[USER]["stop_id"] == SOUTH_ID
+
+
+def test_set_favourite_follow_up_going_south(wired):
+    first = app.handler(intent("SetFavouriteStopIntent"), None)
+    attrs = first.get("sessionAttributes") or {}
+    resp = app.handler(
+        intent("NextTramIntent", station="Dundrum", direction="going south",
+               session_attrs=attrs, new=False),
+        None,
+    )
+    assert "Your favourite stop is now Dundrum, southbound" in speech(resp)
+    assert wired.favourites[USER]["stop_id"] == SOUTH_ID
+
+
+def test_set_favourite_follow_up_query_intent(wired):
+    first = app.handler(intent("SetFavouriteStopIntent"), None)
+    attrs = first.get("sessionAttributes") or {}
+    resp = app.handler(
+        intent("NextTramQueryIntent", query="Dundrum going north", session_attrs=attrs, new=False),
+        None,
+    )
+    assert "Your favourite stop is now Dundrum, northbound" in speech(resp)
+    assert wired.favourites[USER]["stop_id"] == NORTH_ID
+
+
+def test_set_favourite_query_intent_one_shot(wired):
+    resp = app.handler(intent("SetFavouriteQueryIntent", query="Dundrum going south"), None)
+    assert "Your favourite stop is now Dundrum, southbound" in speech(resp)
+    assert wired.favourites[USER]["stop_id"] == SOUTH_ID
 
 
 def test_set_get_and_use_favourite():
@@ -139,9 +256,9 @@ def test_set_get_and_use_favourite():
     resp = app.handler(intent("GetFavouriteStopIntent"), None)
     assert "Dundrum, northbound towards Broombridge" in speech(resp)
     resp = app.handler(intent("NextTramIntent"), None)
-    assert "At Dundrum, northbound towards Broombridge:" in speech(resp)
+    assert "At Dundrum:" in speech(resp)
     resp = app.handler(envelope({"type": "LaunchRequest"}), None)
-    assert "At Dundrum, northbound towards Broombridge:" in speech(resp)
+    assert "At Dundrum:" in speech(resp)
 
 
 def test_launch_without_favourite_welcomes():

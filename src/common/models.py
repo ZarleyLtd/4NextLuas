@@ -92,4 +92,8 @@ class Prediction:
     trip_id: str
 
     def minutes_from(self, now: datetime) -> int:
-        return int((self.predicted - now).total_seconds() // 60)
+        """Whole minutes until departure, rounded half up. Under 30s (or past) is 0."""
+        secs = (self.predicted - now).total_seconds()
+        if secs <= 0:
+            return 0
+        return int((secs + 30) // 60)

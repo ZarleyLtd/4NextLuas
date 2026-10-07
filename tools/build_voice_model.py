@@ -32,22 +32,31 @@ FALLBACK_GTFS_NAMES = [
 ]
 
 NEXT_SAMPLES = [
-    "from {station}",
     "from {station} {direction}",
     "from {station} towards {direction}",
+    "from {station} toward {direction}",
+    "from {station} to {direction}",
+    "{station} towards {direction}",
+    "{station} to {direction}",
     "{direction} from {station}",
-    "trams from {station}",
+    "{station} {direction}",
+    "{direction}",
+    "to get trams from {station} {direction}",
+    "to get the next tram from {station} {direction}",
     "trams from {station} {direction}",
-    "the next tram from {station}",
     "the next tram from {station} {direction}",
-    "when is the next tram from {station}",
-    "what's the next tram from {station}",
-    "next tram from {station}",
-    "from {station} northbound",
-    "from {station} southbound",
-    "from {station} eastbound",
-    "from {station} westbound",
-    "from {station} towards the city",
+    "when is the next tram from {station} {direction}",
+    "what's the next tram from {station} {direction}",
+    "next tram from {station} {direction}",
+    "from {station} going {direction}",
+    "from {station} heading {direction}",
+    "{station} going {direction}",
+    "{station} heading {direction}",
+    "{station} going south",
+    "{station} going north",
+    "from {station} going south",
+    "from {station} going north",
+    "from stop {station} {direction}",
     "next tram",
     "next trams",
     "the next tram",
@@ -64,15 +73,29 @@ NEXT_SAMPLES = [
     "the next tram from my favourite stop",
 ]
 
+QUERY_SAMPLES = [
+    "for {query}",
+    "from {query}",
+    "about {query}",
+    "trams from {query}",
+    "the next tram from {query}",
+    "next tram from {query}",
+    "from stop {query}",
+    "to get trams from {query}",
+]
+
 SET_SAMPLES = [
     "to set my favourite stop to {station}",
     "set my favourite stop to {station}",
     "set my favourite stop to {station} {direction}",
-    "set favourite stop {station}",
+    "set favourite stop {station} {direction}",
     "set my favourite stop",
     "to set my favourite stop",
+    "to set my favorite stop",
+    "set my favorite stop",
     "change my favourite stop to {station}",
     "to change my favourite stop to {station}",
+    "change my favourite stop to {station} {direction}",
     "make {station} my favourite stop",
     "make {station} {direction} my favourite",
     "remember {station}",
@@ -83,6 +106,17 @@ SET_SAMPLES = [
     "my stop is {station} {direction}",
     "to set my favorite stop to {station}",
     "set my favorite stop to {station}",
+    "to set my favourite stop to {station} {direction}",
+    "to set my favorite stop to {station} {direction}",
+]
+
+SET_QUERY_SAMPLES = [
+    "to set my favourite stop to {query}",
+    "set my favourite stop to {query}",
+    "to set my favorite stop to {query}",
+    "set my favorite stop to {query}",
+    "remember {query}",
+    "to remember {query}",
 ]
 
 GET_SAMPLES = [
@@ -125,12 +159,26 @@ def main() -> None:
                         "samples": NEXT_SAMPLES,
                     },
                     {
+                        "name": "NextTramQueryIntent",
+                        "slots": [
+                            {"name": "query", "type": "AMAZON.SearchQuery"},
+                        ],
+                        "samples": QUERY_SAMPLES,
+                    },
+                    {
                         "name": "SetFavouriteStopIntent",
                         "slots": [
                             {"name": "station", "type": "LUAS_STATION"},
                             {"name": "direction", "type": "LUAS_DIRECTION"},
                         ],
                         "samples": SET_SAMPLES,
+                    },
+                    {
+                        "name": "SetFavouriteQueryIntent",
+                        "slots": [
+                            {"name": "query", "type": "AMAZON.SearchQuery"},
+                        ],
+                        "samples": SET_QUERY_SAMPLES,
                     },
                     {"name": "GetFavouriteStopIntent", "slots": [], "samples": GET_SAMPLES},
                     {"name": "AMAZON.HelpIntent", "samples": []},

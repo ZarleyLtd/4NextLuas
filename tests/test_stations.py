@@ -1,6 +1,7 @@
 from src.common.stations import (
     build_station, find_station, match_platforms, parse_direction,
     bad_direction_speech, normalize_name, options_speech,
+    split_station_and_direction,
 )
 
 
@@ -50,6 +51,7 @@ def test_match_direction_phrases():
     assert match_platforms(st, parse_direction("towards the city"))[0].stop_id == "N"
     assert match_platforms(st, parse_direction("towards Broombridge"))[0].stop_id == "N"
     assert match_platforms(st, parse_direction("towards Brides Glen"))[0].stop_id == "S"
+    assert match_platforms(st, parse_direction("to Brides Glen"))[0].stop_id == "S"
     assert match_platforms(st, "eastbound") == []
 
 
@@ -88,9 +90,28 @@ def test_find_station_aliases():
 
 def test_parse_direction():
     assert parse_direction("northbound") == "northbound"
+    assert parse_direction("south bound") == "southbound"
+    assert parse_direction("going south") == "southbound"
+    assert parse_direction("going north") == "northbound"
+    assert parse_direction("heading south") == "southbound"
+    assert parse_direction("going southbound") == "southbound"
     assert parse_direction("towards Broombridge") == "broombridge"
+    assert parse_direction("to Brides Glen") == "brides glen"
+    assert parse_direction("towards Brides Glen") == "brides glen"
     assert parse_direction("the city") == "city"
     assert parse_direction("") is None
+
+
+def test_split_station_glued_direction():
+    assert split_station_and_direction("Dundrum southbound", None) == ("Dundrum", "southbound")
+    assert split_station_and_direction("Dundrum south bound", None) == ("Dundrum", "southbound")
+    assert split_station_and_direction("Dundrum going south", None) == ("Dundrum", "southbound")
+    assert split_station_and_direction("Dundrum going north", None) == ("Dundrum", "northbound")
+    assert split_station_and_direction("Dundrum towards Brides Glen", None) == ("Dundrum", "brides glen")
+    assert split_station_and_direction("Dundrum to Brides Glen", None) == ("Dundrum", "brides glen")
+    assert split_station_and_direction("Dundrum southbound", "northbound") == ("Dundrum", "northbound")
+    assert split_station_and_direction("Dundrum", "southbound") == ("Dundrum", "southbound")
+    assert split_station_and_direction("Dundrum", None) == ("Dundrum", None)
 
 
 def test_options_speech_lists_both():

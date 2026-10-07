@@ -12,7 +12,7 @@ from src.common.rt_cache import RealtimeCache
 from src.common.speech import humanise, next_trams_speech
 from src.common.stations import (
     Platform, Station, bad_direction_speech, catalog_from_dicts, find_station,
-    match_platforms, options_speech, parse_direction,
+    match_platforms, options_speech, split_station_and_direction, spoken_name,
 )
 from src.common.store import Store
 
@@ -83,13 +83,13 @@ class LuasService:
         self._ensure_meta()
         if not station_text:
             return ResolveResult("need_station", prompt="Which Luas stop?", elicit="station")
-        station = find_station(self._stations, station_text)
+        station_name, direction = split_station_and_direction(station_text, direction_text)
+        station = find_station(self._stations, station_name)
         if not station:
             return ResolveResult(
                 "unknown_station",
                 prompt=f"I don't know a Luas stop called {station_text}. Try the stop name, for example Dundrum.",
             )
-        direction = parse_direction(direction_text)
         matches = match_platforms(station, direction)
         usable = station.usable_platforms()
         if direction and not matches:
@@ -127,13 +127,15 @@ class LuasService:
         chosen = select_for_speech(preds, now)
         log.info("stop %s: %d upcoming, %d chosen, realtime=%s(age %ss), %.2fs",
                  ref.stop_id, len(preds), len(chosen), rt.status, rt.age_seconds, time.perf_counter() - t0)
-        label = ref.spoken_name
+        label = spoken_name(ref.stop_name)
         speech = next_trams_speech(label, chosen, now, realtime_available=rt.feed is not None)
         lines = []
         for p in chosen:
             mins = p.minutes_from(now)
             when = "Due" if mins <= 0 else f"{mins} min"
-            lines.append(f"{p.route:<8} {humanise(p.headsign):<26} {when}{'' if p.realtime else ' (timetable)'}")
+            dest = humanise(p.headsign) if p.headsign else ""
+            extra = "" if p.realtime else " (timetable)"
+            lines.append(f"{dest:<26} {when}{extra}".strip())
         card_text = "\n".join(lines) if lines else "No trams due in the next two hours."
         if rt.feed is None:
             card_text += "\n\nLive times unavailable; showing timetable."

@@ -6,9 +6,9 @@
         "en-GB": {
           "name": "4NextLuas",
           "summary": "Live Dublin Luas times for any stop, plus a favourite stop you can ask about with one phrase.",
-          "description": "This skill tells you the next Luas trams from your chosen stop, using the National Transport Authority's real-time data.\n\nSet or change your favourite stop by saying \"Alexa, ask four next luas to set my favourite stop to Dundrum northbound\". Then simply asking \"Alexa, ask four next luas\" gives you your local trams. Get a reminder of your favourite stop by saying \"Alexa, ask four next luas for my favourite stop\". Get trams for any stop by saying \"Alexa, ask four next luas from Dundrum northbound\".\n\nYou can say northbound, southbound, eastbound or westbound where that applies, towards the city, or towards a terminus such as Broombridge or Tallaght.\n\nWhere live information is not available, timetable times are given instead.\n\nNote: this is not an official Luas, Transdev, or TFI skill. It uses publicly available real-time information provided by the National Transport Authority.",
+          "description": "This skill tells you the next Luas trams from your chosen stop, using the National Transport Authority's real-time data.\n\nSet or change your favourite stop by saying \"Alexa, ask four next luas to set my favourite stop to Dundrum northbound\". Then simply asking \"Alexa, ask four next luas\" gives you your local trams. Get a reminder of your favourite stop by saying \"Alexa, ask four next luas for my favourite stop\". Get trams for any stop by saying \"Alexa, ask four next luas for Dundrum southbound\".\n\nYou can say northbound, southbound, eastbound or westbound where that applies, towards the city, or towards a terminus such as Broombridge or Tallaght.\n\nWhere live information is not available, timetable times are given instead.\n\nNote: this is not an official Luas, Transdev, or TFI skill. It uses publicly available real-time information provided by the National Transport Authority.",
           "examplePhrases": [
-            "Alexa, ask four next luas from Dundrum northbound",
+            "Alexa, ask four next luas for Dundrum southbound",
             "Alexa, ask four next luas to set my favourite stop to Sandyford towards the city",
             "Alexa, ask four next luas for the next tram"
           ],
@@ -19,7 +19,7 @@
       },
       "isAvailableWorldwide": false,
       "distributionCountries": ["IE", "GB"],
-      "testingInstructions": "Say: ask four next luas from Dundrum northbound. Then: ask four next luas to set my favourite stop to Dundrum northbound. Then: ask four next luas for the next tram.",
+          "testingInstructions": "Say: ask four next luas for Dundrum southbound. Then: ask four next luas to set my favourite stop to Dundrum northbound. Then: ask four next luas for the next tram.",
       "category": "PUBLIC_TRANSPORTATION"
     },
     "apis": {

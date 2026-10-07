@@ -84,11 +84,28 @@ def deploy_stack(skill_id: str, email: str, reserved: str) -> None:
             print("stack already up to date")
             return
         raise
-    waiter.wait(StackName=STACK, WaiterConfig={"Delay": 10, "MaxAttempts": 90})
+    try:
+        waiter.wait(StackName=STACK, WaiterConfig={"Delay": 10, "MaxAttempts": 90})
+    except Exception:
+        _print_stack_failures(cfn, STACK)
+        raise
     outputs = cfn.describe_stacks(StackName=STACK)["Stacks"][0].get("Outputs", [])
     print("stack ready:")
     for o in outputs:
         print(f"  {o['OutputKey']}: {o['OutputValue']}")
+
+
+def _print_stack_failures(cfn, stack_name: str) -> None:
+    try:
+        events = cfn.describe_events(StackName=stack_name, Filters={"FailedEvents": True})
+    except Exception as exc:
+        print(f"could not load stack failure details: {exc}")
+        return
+    print("stack failure details:")
+    for ev in events.get("OperationEvents", []):
+        reason = ev.get("ValidationStatusReason") or ev.get("ResourceStatusReason") or ""
+        name = ev.get("ValidationName") or ev.get("EventType") or ""
+        print(f"  {ev.get('LogicalResourceId')} {ev.get('ResourceType')} {name}: {reason}")
 
 
 # ---- NTA key -----------------------------------------------------------------------------
@@ -196,7 +213,8 @@ def main() -> None:
     ap.add_argument("action", choices=["stack", "key", "code", "ingest-key", "test", "all"])
     ap.add_argument("--skill-id", default=os.environ.get("ALEXA_SKILL_ID"))
     ap.add_argument("--email", default=os.environ.get("ALERT_EMAIL"))
-    ap.add_argument("--reserved-concurrency", default="1", help='"none" if your account quota is too low')
+    ap.add_argument("--reserved-concurrency", default="none",
+                    help='reserved concurrency for the skill Lambda (default "none")')
     ap.add_argument("--station", default="Dundrum", help="station name for the test invocation")
     ap.add_argument("--direction", default="northbound", help="direction for the test invocation")
     args = ap.parse_args()
