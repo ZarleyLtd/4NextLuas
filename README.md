@@ -1,14 +1,14 @@
-# 4NextLuas
+# 4NextTram
 
 Alexa skill that tells you when the next Dublin Luas trams are due at a stop, using the
 NTA GTFS-Realtime API. Sibling of [4NextBus](https://github.com/ZarleyLtd/4NextBus).
-Invocation name: **four next luas**.
+Store name: **4NextTram**. Invocation: **four next tram**. The trams are Luas trams.
 
-- "Alexa, ask four next luas from Dundrum northbound"
-- "Alexa, ask four next luas from Sandyford towards the city"
-- "Alexa, ask four next luas to set my favourite stop to Heuston eastbound"
-- "Alexa, ask four next luas for my favourite stop"
-- "Alexa, ask four next luas" (uses your favourite)
+- "Alexa, ask four next tram from Dundrum northbound"
+- "Alexa, ask four next tram from Sandyford towards the city"
+- "Alexa, ask four next tram to set my favourite stop to Heuston eastbound"
+- "Alexa, ask four next tram for my favourite stop"
+- "Alexa, ask four next tram" (uses your favourite)
 
 A favourite is **one platform** (one direction at a named station). You can also ask for
 any stop by name.
@@ -25,6 +25,8 @@ tests/             pytest
 template.yaml      CloudFormation: DynamoDB table, Lambda, role, SSM parameter
 ```
 
+AWS resource names remain `FourNextLuas` (table, Lambda, stack) so the live stack is not replaced.
+
 ## Voice model
 
 Canonical files:
@@ -40,8 +42,8 @@ and Build. A new unpublished skill can start with `en-GB` only.
 
 | What users see / say | Value |
 | --- | --- |
-| Skill name (store and console) | `4NextLuas` |
-| Invocation name (spoken) | `four next luas` |
+| Skill name (store and console) | `4NextTram` |
+| Invocation name (spoken) | `four next tram` |
 
 ### Custom intents
 
@@ -76,7 +78,7 @@ Dialog is `SKILL_RESPONSE`: Lambda elicits `station` or `direction` when needed.
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements-dev.txt
 copy .env.example .env   # then fill in NTA_API_KEY
-.\.venv\Scripts\python tools\poc_next_luas.py Dundrum --direction northbound --no-realtime
+.\.venv\Scripts\python tools\poc_next_tram.py Dundrum --direction northbound --no-realtime
 .\.venv\Scripts\python -m pytest -q
 .\.venv\Scripts\python tools\build_voice_model.py
 ```
@@ -84,7 +86,7 @@ copy .env.example .env   # then fill in NTA_API_KEY
 If `pip` fails with `CERTIFICATE_VERIFY_FAILED`, bootstrap once with
 `--trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip truststore`.
 
-NTA only issues one GTFS-Realtime subscription per developer account. 4NextLuas
+NTA only issues one GTFS-Realtime subscription per developer account. 4NextTram
 shares that key with live 4NextBus (and later 4NextDart / 4NextTrain). Before calling
 NTA it claims the same DynamoDB lock item as the bus skill (`FourNextBus` `META/RTLOCK`),
 so the combined skills stay at one TripUpdates call per 60 seconds. The loser uses a
@@ -103,7 +105,7 @@ Everything is driven by `tools/deploy.py` (boto3 only).
 5. Alexa console: paste `skill-package/interactionModels/custom/en-GB.json`, paste the Lambda ARN.
    Upload `skill-package/assets/images/en-GB_smallIcon.png` (108×108) and
    `en-GB_largeIcon.png` (512×512) under Distribution. Privacy policy:
-   https://zarleyltd.github.io/4NextLuas/privacy.html (GitHub Pages from `docs/`).
+   https://zarleyltd.github.io/4NextTram/privacy.html (GitHub Pages from `docs/`).
 6. `python tools/deploy.py test --station Dundrum --direction northbound`
 7. Daily refresh: `python tools/deploy.py ingest-key` then add the printed keys as GitHub secrets.
    The workflow in `.github/workflows/ingest.yml` runs at **03:55 UTC** (after 4NextBus at 03:40).

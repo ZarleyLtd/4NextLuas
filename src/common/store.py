@@ -1,4 +1,4 @@
-"""Single-table DynamoDB access for 4NextLuas.
+"""Single-table DynamoDB access for 4NextTram.
 
 Table (pk S, sk S), provisioned 25 RCU / 25 WCU (free tier):
 

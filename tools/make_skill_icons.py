@@ -1,4 +1,4 @@
-"""Build Alexa store icons from 4NextLuasIcon.jpg.
+"""Build Alexa store icons from 4NextTramIcon.jpg.
 
 Small: 108x108 PNG, 16px padding. Large: 512x512 PNG, 75px padding.
 """
@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "4NextLuasIcon.jpg"
+SRC = ROOT / "4NextTramIcon.jpg"
 OUT_DIR = ROOT / "skill-package" / "assets" / "images"
 DOCS_DIR = ROOT / "docs" / "icons"
 

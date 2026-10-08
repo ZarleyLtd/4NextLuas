@@ -4,22 +4,22 @@
     "publishingInformation": {
       "locales": {
         "en-GB": {
-          "name": "4NextLuas",
-          "summary": "Live Dublin Luas times for any stop, plus a favourite stop you can ask about with one phrase.",
-          "description": "This skill tells you the next Luas trams from your chosen stop, using the National Transport Authority's real-time data.\n\nSet or change your favourite stop by saying \"Alexa, ask four next luas to set my favourite stop to Dundrum northbound\". Then simply asking \"Alexa, ask four next luas\" gives you your local trams. Get a reminder of your favourite stop by saying \"Alexa, ask four next luas for my favourite stop\". Get trams for any stop by saying \"Alexa, ask four next luas for Dundrum southbound\".\n\nYou can say northbound, southbound, going north, going south, eastbound or westbound where that applies, towards the city, or towards a terminus such as Broombridge or Brides Glen.\n\nWhere live information is not available, timetable times are given instead.\n\nNote: this is not an official Luas, Transdev, or TFI skill. It uses publicly available real-time information provided by the National Transport Authority.",
+          "name": "4NextTram",
+          "summary": "Live Dublin Luas tram times for any stop, plus a favourite stop you can ask about with one phrase.",
+          "description": "This skill tells you the next Dublin Luas trams from your chosen stop, using the National Transport Authority's real-time data. Luas is Dublin's tram network.\n\nSet or change your favourite stop by saying \"Alexa, ask four next tram to set my favourite stop to Dundrum northbound\". Then simply asking \"Alexa, ask four next tram\" gives you your local trams. Get a reminder of your favourite stop by saying \"Alexa, ask four next tram for my favourite stop\". Get trams for any stop by saying \"Alexa, ask four next tram for Dundrum southbound\".\n\nYou can say northbound, southbound, going north, going south, eastbound or westbound where that applies, towards the city, or towards a terminus such as Broombridge or Brides Glen.\n\nWhere live information is not available, timetable times are given instead.\n\nNote: this is not an official Luas, Transdev, or TFI skill. It uses publicly available real-time information provided by the National Transport Authority.",
           "examplePhrases": [
-            "Alexa, ask four next luas for Dundrum southbound",
-            "Alexa, ask four next luas to set my favourite stop to Sandyford towards the city",
-            "Alexa, ask four next luas for the next tram"
+            "Alexa, ask four next tram for Dundrum southbound",
+            "Alexa, ask four next tram to set my favourite stop to Sandyford towards the city",
+            "Alexa, ask four next tram for the next tram"
           ],
           "keywords": ["dublin", "luas", "tram", "real time", "tfi", "next tram", "ireland"],
-          "smallIconUri": "https://zarleyltd.github.io/4NextLuas/icons/en-GB_smallIcon.png",
-          "largeIconUri": "https://zarleyltd.github.io/4NextLuas/icons/en-GB_largeIcon.png"
+          "smallIconUri": "https://zarleyltd.github.io/4NextTram/icons/en-GB_smallIcon.png",
+          "largeIconUri": "https://zarleyltd.github.io/4NextTram/icons/en-GB_largeIcon.png"
         }
       },
       "isAvailableWorldwide": false,
       "distributionCountries": ["IE", "GB"],
-      "testingInstructions": "No account linking. English (UK) locale. Ireland and UK distribution.\n\n1. Ask four next luas for Dundrum southbound. Expect tram times towards Brides Glen.\n2. Ask four next luas to set my favourite stop. When prompted, say Broadstone going south. Expect confirmation of Broadstone DIT southbound.\n3. Ask four next luas for the next tram. Expect the saved favourite.\n4. Ask four next luas for Heuston eastbound (Red Line) and for Dawson southbound (city centre).\n5. Help and Stop should work.\n\nLive times come from the NTA GTFS-Realtime feed; if live data is unavailable the skill says scheduled (timetable) times.",
+      "testingInstructions": "No account linking. English (UK) locale. Ireland and UK distribution. This skill covers Dublin Luas trams.\n\n1. Ask four next tram for Dundrum southbound. Expect tram times towards Brides Glen.\n2. Ask four next tram to set my favourite stop. When prompted, say Broadstone going south. Expect confirmation of Broadstone DIT southbound.\n3. Ask four next tram for the next tram. Expect the saved favourite.\n4. Ask four next tram for Heuston eastbound (Red Line) and for Dawson southbound (city centre).\n5. Help and Stop should work.\n\nLive times come from the NTA GTFS-Realtime feed; if live data is unavailable the skill says scheduled (timetable) times.",
       "category": "PUBLIC_TRANSPORTATION"
     },
     "apis": {
@@ -38,7 +38,7 @@
       "containsAds": false,
       "locales": {
         "en-GB": {
-          "privacyPolicyUrl": "https://zarleyltd.github.io/4NextLuas/privacy.html",
+          "privacyPolicyUrl": "https://zarleyltd.github.io/4NextTram/privacy.html",
           "termsOfUseUrl": ""
         }
       }

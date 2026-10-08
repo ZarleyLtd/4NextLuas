@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  4NextLuas Alexa skill backend. Always-free-tier only: one provisioned DynamoDB table,
+  4NextTram Alexa skill backend. Always-free-tier only: one provisioned DynamoDB table,
   one Lambda, CloudWatch Logs with short retention, an IAM user for the GitHub Actions
   ingest job, and a $1 budget alarm. The Lambda code is uploaded separately by
   tools/deploy.py (direct zip upload, no S3 bucket). The NTA API key lives in an SSM
@@ -114,7 +114,7 @@ Resources:
     DependsOn: LogGroup
     Properties:
       FunctionName: !Ref FunctionName
-      Description: 4NextLuas Alexa skill handler (code deployed by tools/deploy.py)
+      Description: 4NextTram Alexa skill handler (code deployed by tools/deploy.py)
       Runtime: python3.13
       Architectures: [x86_64]
       Handler: src.skill.app.handler

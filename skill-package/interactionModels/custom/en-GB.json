@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "four next luas",
+      "invocationName": "four next tram",
       "intents": [
         {
           "name": "NextTramIntent",
@@ -881,7 +881,7 @@
         "variations": [
           {
             "type": "PlainText",
-            "value": "Which Luas stop?"
+            "value": "Which tram stop?"
           },
           {
             "type": "PlainText",

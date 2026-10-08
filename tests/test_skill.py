@@ -164,7 +164,7 @@ def test_slot_value_reads_slot_value_payload():
 
 def test_unknown_station():
     resp = app.handler(intent("NextTramIntent", station="Narnia"), None)
-    assert "don't know a Luas stop called Narnia" in speech(resp)
+    assert "don't know a tram stop called Narnia" in speech(resp)
 
 
 def test_station_without_direction_elicits():
@@ -285,7 +285,7 @@ def test_set_get_and_use_favourite():
 
 def test_launch_without_favourite_welcomes():
     resp = app.handler(envelope({"type": "LaunchRequest"}), None)
-    assert "Welcome to four next luas" in speech(resp)
+    assert "Welcome to four next tram" in speech(resp)
     assert resp["response"]["shouldEndSession"] is False
 
 

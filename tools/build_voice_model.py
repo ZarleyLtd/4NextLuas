@@ -144,7 +144,7 @@ def main() -> None:
     model = {
         "interactionModel": {
             "languageModel": {
-                "invocationName": "four next luas",
+                "invocationName": "four next tram",
                 "intents": [
                     {
                         "name": "NextTramIntent",
@@ -231,7 +231,7 @@ def main() -> None:
                 {
                     "id": "Elicit.Slot.station",
                     "variations": [
-                        {"type": "PlainText", "value": "Which Luas stop?"},
+                        {"type": "PlainText", "value": "Which tram stop?"},
                         {"type": "PlainText", "value": "What's the name of the stop?"},
                     ],
                 },

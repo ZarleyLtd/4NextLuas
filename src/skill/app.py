@@ -1,4 +1,4 @@
-"""Alexa skill Lambda handler for 4NextLuas (invocation name: "four next luas")."""
+"""Alexa skill Lambda handler for 4NextTram (invocation name: "four next tram")."""
 from __future__ import annotations
 
 import logging
@@ -31,7 +31,7 @@ def service() -> LuasService:
     return _service
 
 
-HELP = ("I can tell you the next Luas trams from a stop. Say, for example, Dundrum southbound. "
+HELP = ("I can tell you the next Dublin Luas trams from a stop. Say, for example, Dundrum southbound. "
         "You can say southbound or going south, northbound or going north, "
         "eastbound, westbound, towards the city, or towards a terminus like Broombridge. "
         "To save a stop, say, set my favourite stop to, and the name and direction. "
@@ -39,7 +39,7 @@ HELP = ("I can tell you the next Luas trams from a stop. Say, for example, Dundr
 NO_FAVOURITE = ("You haven't set a favourite stop yet. Say, set my favourite stop to, followed by "
                 "the stop name and direction, for example, Dundrum northbound.")
 MISS_STATION = ("I didn't catch which stop. Say the stop name and direction, for example, Dundrum southbound.")
-ASK_STATION = "Which Luas stop?"
+ASK_STATION = "Which tram stop?"
 ASK_DIRECTION = "Which direction?"
 PENDING_SET_FAV = "set_favourite"
 ASK_FAVOURITE_STOP = "Say the stop name and direction, for example Broadstone southbound."
@@ -187,8 +187,9 @@ class LaunchRequestHandler(AbstractRequestHandler):
         fav = service().get_favourite(user_id(handler_input))
         if fav:
             return respond_with_trams(handler_input, fav)
-        speech = ("Welcome to four next luas. Ask me for trams from a stop, for example, "
-                  "Dundrum southbound. Or say, set my favourite stop to, and the stop name.")
+        speech = ("Welcome to four next tram. I can give you Dublin Luas tram times. "
+                  "Ask me for trams from a stop, for example, Dundrum southbound. "
+                  "Or say, set my favourite stop to, and the stop name.")
         return handler_input.response_builder.speak(speech).ask(ASK_STATION).response
 
 

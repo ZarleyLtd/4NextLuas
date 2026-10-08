@@ -1,6 +1,6 @@
 """Local proof of concept: next trams at a named Luas stop.
 
-Usage:  python tools/poc_next_luas.py Dundrum [--direction northbound] [--no-realtime] [--at HH:MM]
+Usage:  python tools/poc_next_tram.py Dundrum [--direction northbound] [--no-realtime] [--at HH:MM]
 
 Reads NTA_API_KEY from .env.
 """

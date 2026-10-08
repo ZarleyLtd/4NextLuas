@@ -32,7 +32,7 @@ class RealtimeError(RuntimeError):
 def fetch_trip_updates(api_key: str, timeout: float = 8.0, session: requests.Session | None = None) -> RealtimeFeed:
     """GET the feed as protobuf and index it by trip_id. Raises RealtimeError on failure."""
     sess = session or requests.Session()
-    headers = {"x-api-key": api_key, "Accept": "application/x-protobuf", "User-Agent": "4NextLuas/1.0"}
+    headers = {"x-api-key": api_key, "Accept": "application/x-protobuf", "User-Agent": "4NextTram/1.0"}
     t0 = time.perf_counter()
     try:
         resp = sess.get(TRIP_UPDATES_URL, headers=headers, timeout=timeout)

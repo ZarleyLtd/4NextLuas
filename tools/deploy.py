@@ -1,4 +1,4 @@
-"""Deploy 4NextLuas to AWS using boto3 only (no AWS CLI, no SAM, no S3 bucket).
+"""Deploy 4NextTram to AWS using boto3 only (no AWS CLI, no SAM, no S3 bucket).
 
   python tools/deploy.py stack --skill-id amzn1.ask.skill.xxx --email you@example.com
   python tools/deploy.py key            # store NTA_API_KEY from .env as an SSM SecureString
@@ -118,7 +118,7 @@ def put_key() -> None:
         key = input("NTA API key: ").strip()
     ssm = session().client("ssm")
     ssm.put_parameter(Name=PARAM, Value=key, Type="SecureString", Overwrite=True,
-                      Description="4NextLuas NTA GTFS-R subscription key")
+                      Description="4NextTram NTA GTFS-R subscription key")
     print(f"stored {PARAM} ({key[:4]}...{key[-4:]})")
 
 

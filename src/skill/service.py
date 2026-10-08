@@ -82,13 +82,13 @@ class LuasService:
     def resolve(self, station_text: str | None, direction_text: str | None) -> ResolveResult:
         self._ensure_meta()
         if not station_text:
-            return ResolveResult("need_station", prompt="Which Luas stop?", elicit="station")
+            return ResolveResult("need_station", prompt="Which tram stop?", elicit="station")
         station_name, direction = split_station_and_direction(station_text, direction_text)
         station = find_station(self._stations, station_name)
         if not station:
             return ResolveResult(
                 "unknown_station",
-                prompt=f"I don't know a Luas stop called {station_text}. Try the stop name, for example Dundrum.",
+                prompt=f"I don't know a tram stop called {station_text}. Try the stop name, for example Dundrum.",
             )
         matches = match_platforms(station, direction)
         usable = station.usable_platforms()
