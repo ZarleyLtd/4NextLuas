@@ -6,6 +6,9 @@ from functools import lru_cache
 
 
 TABLE_NAME = os.environ.get("FOURNEXTLUAS_TABLE", "FourNextLuas")
+# Shared NTA TripUpdates lock. Default is the live bus table so one key is
+# 1 call / 60s across 4NextBus, 4NextLuas, and later Dart/Train siblings.
+LOCK_TABLE = os.environ.get("NTA_LOCK_TABLE", "FourNextBus")
 REGION = os.environ.get("AWS_REGION") or os.environ.get("AWS_DEFAULT_REGION") or "eu-west-1"
 # Comma-separated list of Alexa skill IDs allowed to invoke the handler (empty = no check).
 SKILL_IDS = frozenset(s.strip() for s in os.environ.get("ALEXA_SKILL_ID", "").split(",") if s.strip())

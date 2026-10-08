@@ -26,7 +26,7 @@ _service: LuasService | None = None
 def service() -> LuasService:
     global _service
     if _service is None:
-        store = Store(config.TABLE_NAME, config.REGION)
+        store = Store(config.TABLE_NAME, config.REGION, lock_table=config.LOCK_TABLE)
         _service = LuasService(store, RealtimeCache(store, config.nta_api_key()))
     return _service
 
@@ -40,6 +40,7 @@ NO_FAVOURITE = ("You haven't set a favourite stop yet. Say, set my favourite sto
                 "the stop name and direction, for example, Dundrum northbound.")
 MISS_STATION = ("I didn't catch which stop. Say the stop name and direction, for example, Dundrum southbound.")
 ASK_STATION = "Which Luas stop?"
+ASK_DIRECTION = "Which direction?"
 PENDING_SET_FAV = "set_favourite"
 ASK_FAVOURITE_STOP = "Say the stop name and direction, for example Broadstone southbound."
 ERROR = "Sorry, I had trouble getting the tram times. Please try again in a moment."
@@ -104,11 +105,16 @@ def respond_with_trams(handler_input: HandlerInput, ref: StopRef) -> Response:
 
 
 def elicit(handler_input: HandlerInput, prompt: str, slot_name: str) -> Response:
-    ask = ASK_STATION if slot_name == "station" else "Which direction?"
+    ask = ASK_STATION if slot_name == "station" else ASK_DIRECTION
     return (handler_input.response_builder
             .speak(prompt).ask(ask)
             .add_directive(ElicitSlotDirective(slot_to_elicit=slot_name))
             .response)
+
+
+def ask_without_elicit(handler_input: HandlerInput, prompt: str, ask: str) -> Response:
+    """Keep the session open as a normal turn so the next utterance is a full intent."""
+    return handler_input.response_builder.speak(prompt).ask(ask).response
 
 
 def session_attrs(handler_input: HandlerInput) -> dict:
@@ -144,7 +150,10 @@ def save_favourite(handler_input: HandlerInput, station: str | None, direction: 
         if peeled:
             session_attrs(handler_input)["pending_station"] = peeled
         session_attrs(handler_input)["pending_action"] = PENDING_SET_FAV
-        return elicit(handler_input, result.prompt, result.elicit)
+        # Do not ElicitSlot here: that directive is tied to the current intent
+        # (often NextTramIntent after a follow-up) and the test tab then drops
+        # a one-word reply such as "south" without sending it to Lambda.
+        return ask_without_elicit(handler_input, result.prompt, ASK_DIRECTION)
     session_attrs(handler_input).pop("pending_action", None)
     return handler_input.response_builder.speak(result.prompt).set_should_end_session(True).response
 
@@ -274,6 +283,11 @@ class FallbackIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         if session_attrs(handler_input).get("pending_action") == PENDING_SET_FAV:
+            if session_attrs(handler_input).get("pending_station"):
+                return ask_without_elicit(
+                    handler_input,
+                    "Sorry, I didn't catch that. " + ASK_DIRECTION,
+                    ASK_DIRECTION)
             return ask_for_favourite_stop(
                 handler_input, "Sorry, I didn't catch that. " + ASK_FAVOURITE_STOP)
         speech = "Sorry, I didn't catch that. " + HELP

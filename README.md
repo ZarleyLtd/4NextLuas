@@ -65,7 +65,7 @@ Dialog is `SKILL_RESPONSE`: Lambda elicits `station` or `direction` when needed.
 
 ## Data sources
 
-- Realtime: `https://api.nationaltransport.ie/gtfsr/v2/TripUpdates` (header `x-api-key`), max 1 call / 60 s.
+- Realtime: `https://api.nationaltransport.ie/gtfsr/v2/TripUpdates` (header `x-api-key`), max 1 call / 60 s **per key**.
 - Static timetable: `https://www.transportforireland.ie/transitData/Data/GTFS_Realtime.zip`, **route_type 0** (tram).
   Luas is in that same zip as Dublin Bus; 4NextBus filters it out, this skill keeps only tram rows.
   Do not ingest `GTFS_LUAS.zip` for production IDs — they must match GTFS-R v2.
@@ -84,8 +84,12 @@ copy .env.example .env   # then fill in NTA_API_KEY
 If `pip` fails with `CERTIFICATE_VERIFY_FAILED`, bootstrap once with
 `--trusted-host pypi.org --trusted-host files.pythonhosted.org --upgrade pip truststore`.
 
-Prefer a **second NTA API key** so this skill does not share the 1 request / 60 s budget
-with 4NextBus. If you only have one key, both skills will compete.
+NTA only issues one GTFS-Realtime subscription per developer account. 4NextLuas
+shares that key with live 4NextBus (and later 4NextDart / 4NextTrain). Before calling
+NTA it claims the same DynamoDB lock item as the bus skill (`FourNextBus` `META/RTLOCK`),
+so the combined skills stay at one TripUpdates call per 60 seconds. The loser uses a
+cached feed if that Lambda container has one, otherwise timetable times (“scheduled”).
+Set `NTA_LOCK_TABLE` if the bus table name is not `FourNextBus`.
 
 ## Deploying (first time)
 
@@ -97,6 +101,9 @@ Everything is driven by `tools/deploy.py` (boto3 only).
    SSM `/4nextluas/nta_api_key`), then uploads the zip. It prints the Lambda ARN.
 4. First timetable load: `python -m ingest.build_timetable` (Luas is a few dozen stops; minutes, not an hour).
 5. Alexa console: paste `skill-package/interactionModels/custom/en-GB.json`, paste the Lambda ARN.
+   Upload `skill-package/assets/images/en-GB_smallIcon.png` (108×108) and
+   `en-GB_largeIcon.png` (512×512) under Distribution. Privacy policy:
+   https://zarleyltd.github.io/4NextLuas/privacy.html (GitHub Pages from `docs/`).
 6. `python tools/deploy.py test --station Dundrum --direction northbound`
 7. Daily refresh: `python tools/deploy.py ingest-key` then add the printed keys as GitHub secrets.
    The workflow in `.github/workflows/ingest.yml` runs at **03:55 UTC** (after 4NextBus at 03:40).

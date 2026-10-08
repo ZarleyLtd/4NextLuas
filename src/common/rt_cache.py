@@ -1,9 +1,10 @@
 """Realtime feed cache that respects NTA's one-request-per-60-seconds policy.
 
 Lives for the lifetime of a Lambda container. Before calling NTA it claims a
-DynamoDB lock item (conditional write), so even several containers together never
-exceed one call per minute. A container that loses the race serves its own last
-copy if it has one, otherwise the caller falls back to timetable times.
+DynamoDB lock item (conditional write). The lock table is shared with 4NextBus
+(and later siblings) so one NTA key stays at one call per minute across skills.
+A container that loses the race serves its own last copy if it has one,
+otherwise the caller falls back to timetable times.
 """
 from __future__ import annotations
 

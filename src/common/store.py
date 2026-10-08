@@ -6,7 +6,9 @@ Table (pk S, sk S), provisioned 25 RCU / 25 WCU (free tier):
   META             STATIONS   gz: [{name, spoken, city_centre, platforms: [...]}]
   META             CALENDAR   gz: {YYYYMMDD: [service_id, ...]}
   META             MANIFEST   gz: {stop_id: hash}, feed_version, updated_at
-  META             RTLOCK     last_fetch (N, epoch seconds)
+  META             RTLOCK     last_fetch (N, epoch seconds) — unused when NTA_LOCK_TABLE
+                              points at a sibling (4NextBus) so one key is 1 call / 60s
+                              across Luas, Bus, and later Dart/Train
   USER#<user_id>   PROFILE    stop_id, stop_code, stop_name, updated_at
 
 Uses the low-level boto3 client to keep Lambda cold starts short.
@@ -40,8 +42,10 @@ def content_hash(obj: Any) -> str:
 
 
 class Store:
-    def __init__(self, table_name: str, region: str | None = None, client=None):
+    def __init__(self, table_name: str, region: str | None = None, client=None,
+                 lock_table: str | None = None):
         self.table = table_name
+        self.lock_table = lock_table or table_name
         self.ddb = client or boto3.client("dynamodb", region_name=region)
 
     # ---- low level -------------------------------------------------------------
@@ -128,10 +132,14 @@ class Store:
     # ---- realtime lock -----------------------------------------------------------
 
     def try_acquire_rt_lock(self, now_epoch: int, min_interval: int = 60) -> bool:
-        """Atomically claim the right to call NTA. True if we may fetch now."""
+        """Atomically claim the right to call NTA. True if we may fetch now.
+
+        Uses lock_table (often FourNextBus) so sibling skills sharing one NTA key
+        cannot each fire a request in the same minute.
+        """
         try:
             self.ddb.update_item(
-                TableName=self.table,
+                TableName=self.lock_table,
                 Key={"pk": {"S": "META"}, "sk": {"S": "RTLOCK"}},
                 UpdateExpression="SET last_fetch = :now",
                 ConditionExpression="attribute_not_exists(last_fetch) OR last_fetch <= :cutoff",

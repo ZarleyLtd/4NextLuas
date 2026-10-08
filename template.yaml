@@ -28,6 +28,10 @@ Parameters:
   NtaKeyParameterName:
     Type: String
     Default: /4nextluas/nta_api_key
+  NtaLockTable:
+    Type: String
+    Default: FourNextBus
+    Description: DynamoDB table whose META/RTLOCK item gates NTA TripUpdates (shared with sibling skills).
   ReservedConcurrency:
     Type: String
     Default: "1"
@@ -36,6 +40,7 @@ Parameters:
 Conditions:
   UseReservedConcurrency: !Not [!Equals [!Ref ReservedConcurrency, "none"]]
   HasSecondSkill: !Not [!Equals [!Ref SecondSkillId, ""]]
+  SharedNtaLock: !Not [!Equals [!Ref NtaLockTable, !Ref TableName]]
 
 Resources:
   Table:
@@ -85,6 +90,15 @@ Resources:
               - Effect: Allow
                 Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
                 Resource: !GetAtt Table.Arn
+              - !If
+                - SharedNtaLock
+                - Effect: Allow
+                  Action: dynamodb:UpdateItem
+                  Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${NtaLockTable}
+                  Condition:
+                    ForAllValues:StringEquals:
+                      dynamodb:LeadingKeys: ["META"]
+                - !Ref AWS::NoValue
               - Effect: Allow
                 Action: ssm:GetParameter
                 Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${NtaKeyParameterName}
@@ -111,6 +125,7 @@ Resources:
       Environment:
         Variables:
           FOURNEXTLUAS_TABLE: !Ref TableName
+          NTA_LOCK_TABLE: !Ref NtaLockTable
           NTA_API_KEY_PARAM: !Ref NtaKeyParameterName
           ALEXA_SKILL_ID: !If [HasSecondSkill, !Sub "${SkillId},${SecondSkillId}", !Ref SkillId]
       Code:

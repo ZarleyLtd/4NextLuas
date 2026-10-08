@@ -80,3 +80,20 @@ def test_pack_roundtrip():
     data = {"a": [1, "x", None], "é": "ü"}
     assert unpack(pack(data)) == data
     assert content_hash(data) == content_hash({"a": [1, "x", None], "é": "ü"})
+
+
+def test_rt_lock_uses_shared_table():
+    from src.common.store import Store
+
+    class RecordingClient:
+        def __init__(self):
+            self.calls = []
+
+        def update_item(self, **kwargs):
+            self.calls.append(kwargs)
+
+    client = RecordingClient()
+    store = Store("FourNextLuas", client=client, lock_table="FourNextBus")
+    assert store.try_acquire_rt_lock(1_700_000_000) is True
+    assert client.calls[0]["TableName"] == "FourNextBus"
+    assert client.calls[0]["Key"] == {"pk": {"S": "META"}, "sk": {"S": "RTLOCK"}}

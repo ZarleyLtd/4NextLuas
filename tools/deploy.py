@@ -39,6 +39,7 @@ STACK = os.environ.get("FOURNEXTLUAS_STACK", "FourNextLuas")
 TABLE = os.environ.get("FOURNEXTLUAS_TABLE", "FourNextLuas")
 FUNCTION = os.environ.get("FOURNEXTLUAS_FUNCTION", "FourNextLuas-Skill")
 PARAM = os.environ.get("NTA_API_KEY_PARAM", "/4nextluas/nta_api_key")
+LOCK_TABLE = os.environ.get("NTA_LOCK_TABLE", "FourNextBus")
 LAMBDA_PY = "3.13"
 
 
@@ -61,6 +62,7 @@ def deploy_stack(skill_id: str, email: str, reserved: str) -> None:
         {"ParameterKey": "TableName", "ParameterValue": TABLE},
         {"ParameterKey": "FunctionName", "ParameterValue": FUNCTION},
         {"ParameterKey": "NtaKeyParameterName", "ParameterValue": PARAM},
+        {"ParameterKey": "NtaLockTable", "ParameterValue": LOCK_TABLE},
         {"ParameterKey": "ReservedConcurrency", "ParameterValue": reserved},
     ]
     kwargs = dict(StackName=STACK, TemplateBody=template, Parameters=params,

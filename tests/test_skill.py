@@ -221,6 +221,28 @@ def test_set_favourite_follow_up_glued_direction(wired):
     assert wired.favourites[USER]["stop_id"] == SOUTH_ID
 
 
+def test_set_favourite_station_then_south(wired):
+    """Alexa often fills only the station from 'Broadstone going south'; then the user says 'south'."""
+    first = app.handler(intent("SetFavouriteStopIntent"), None)
+    attrs = first.get("sessionAttributes") or {}
+    second = app.handler(
+        intent("NextTramIntent", station="Dundrum", session_attrs=attrs, new=False),
+        None,
+    )
+    assert "Which direction at Dundrum" in speech(second)
+    assert second["response"]["shouldEndSession"] is False
+    directives = second["response"].get("directives") or []
+    assert not any("ElicitSlot" in str(d.get("type", d)) for d in directives)
+    attrs = second.get("sessionAttributes") or {}
+    assert attrs.get("pending_station") == "Dundrum"
+    third = app.handler(
+        intent("NextTramIntent", direction="south", session_attrs=attrs, new=False),
+        None,
+    )
+    assert "Your favourite stop is now Dundrum, southbound" in speech(third)
+    assert wired.favourites[USER]["stop_id"] == SOUTH_ID
+
+
 def test_set_favourite_follow_up_going_south(wired):
     first = app.handler(intent("SetFavouriteStopIntent"), None)
     attrs = first.get("sessionAttributes") or {}

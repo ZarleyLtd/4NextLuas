@@ -4,5 +4,6 @@ boto3>=1.34
 duckdb>=1.0
 python-dotenv>=1.0
 pytest>=8
+pillow>=10            # tools/make_skill_icons.py only
 truststore>=0.9      # use the Windows certificate store (needed behind Avast/corporate TLS inspection)
 certifi
